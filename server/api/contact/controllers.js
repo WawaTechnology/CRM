@@ -3,19 +3,19 @@ const Services = require('./services')
 module.exports = {
     createNewContact: async (ctx) => {
         let body = {...ctx.request.body}
-        let newContactID = await Services.createContact(body)
+        let newContact = await Services.createContact(body)
         if(ctx.query.bindingCustomer){
-            await Services.bindingCustomer(newContactID,ctx.query.bindingCustomer)
+            await Services.bindingCustomer(newContact._id,ctx.query.bindingCustomer)
         }
         ctx.status=201
         ctx.body = {
             code:0,
             message:"created new contact successfully",
-            payload:newContactID
+            payload:newContact._id
         }
     },
     searchCustomers:async(ctx)=>{
-        let keyword = ctx.params.keyword
+        let keyword = ctx.query.keyword
         let customers = await Services.searchCustomers(keyword)
         ctx.status=200
         ctx.body = {

@@ -6,16 +6,19 @@ module.exports = {
         if(ctx.query.bindingContact){
             body.contact = ctx.query.bindingContact
         }
-        let newCustomerID = await Services.createCustomer(body)
+        let newCustomer = await Services.createCustomer(body)
+        if(body.contact){
+            await Services.bindingContact(newCustomer._id,body.contact)
+        }
         ctx.status=201
         ctx.body = {
             code:0,
             message:"created new customer successfully",
-            payload:newCustomerID
+            payload:newCustomer._id
         }
     },
     searchContacts:async(ctx)=>{
-        let keyword = ctx.params.keyword
+        let keyword = ctx.query.keyword
         let contacts = await Services.searchContacts(keyword)
         ctx.status=200
         ctx.body = {
@@ -57,5 +60,15 @@ module.exports = {
             message:"search customers paged list successfully",
             payload
         }
+    },
+    bindingContact:async(ctx)=>{
+        let customer = await Services.updateCustomer(ctx.request.body.customerID,{contact:ctx.request.body.contactID})
+        await Services.unBindingContact(customer._id,customer.contact)
+        await Services.bindingContact(customer._id,ctx.request.body.contactID)
+        ctx.status=201
+        ctx.body = {
+            code: 0,
+            message: "binding success"
+          }
     }
 }

@@ -18,7 +18,7 @@ module.exports = {
     },
     getPagedContactList: async (skipLength, pageSize) => {
         let count = await Contact.count()
-        let contacts = await Contact.find().skip(skipLength).limit(pageSize)
+        let contacts = await Contact.find().skip(skipLength).limit(pageSize).populate({path:'serviceCustomers',select:'name'}).select('name tel position')
         return {
             count,
             contacts
@@ -34,7 +34,7 @@ module.exports = {
                 query.tel = { $regex: keyword, $options: "$i" }
         }
         let count = await Contact.count(query)
-        let contacts = await Contact.find(query).skip(skipLength).limit(pageSize)
+        let contacts = await Contact.find(query).skip(skipLength).limit(pageSize).populate({path:'serviceCustomers',select:'name'}).select('name tel position')
         return {
             count,
             contacts

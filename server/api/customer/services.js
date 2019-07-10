@@ -11,11 +11,11 @@ module.exports = {
         return await Contact.find(query).select('name')
     },
     updateCustomer: async (customerID, body) => {
-        return await Customer.findByIdAndUpdate(customerID, body)
+        return await Customer.findByIdAndUpdate(customerID, body,{upsert:true})
     },
     getPagedCustomerList: async (skipLength, pageSize) => {
         let count = await Customer.count()
-        let customers = await Customer.find().skip(skipLength).limit(pageSize)
+        let customers = await Customer.find().skip(skipLength).limit(pageSize).populate({path:'contact',select:'name tel position'}).select('name contact staff status attribute level lastTimeVisit')
         return {
             count,
             customers
@@ -52,10 +52,16 @@ module.exports = {
                 query.level = keyword
         }
         let count = await Customer.count(query)
-        let customers = await Customer.find(query).skip(skipLength).limit(pageSize)
+        let customers = await Customer.find(query).skip(skipLength).limit(pageSize).populate({path:'contact',select:'name tel position'}).select('name contact staff status attribute level lastTimeVisit')
         return {
             count,
             customers
         }
+    },
+    unBindingContact:async(customerID,contactID)=>{
+        await Contact.findByIdAndUpdate(contactID,{$pull:{serviceCustomers:customerID}})
+    },
+    bindingContact:async(customerID,contactID)=>{
+        await Contact.findByIdAndUpdate(contactID,{$addToSet:{serviceCustomers:customerID}})
     }
 }
