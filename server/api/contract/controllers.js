@@ -1,18 +1,87 @@
 const Services = require('./services')
 
 module.exports = {
-    sayHello: async (ctx) => {
-        // 1.解析ctx 
-        //   [ctx.params]
-        //   [ctx.query]
-        //   [ctx.request.body]
-        // 2.调用 services
-        // 3.返回 ctx.body
-        ctx.body =  
-        `
-        <div style="display: flex;align-items: center;justify-content: center;position: fixed;top: 0;left: 0;right: 0;bottom: 0;background-color: rgba(0,0,0,0);z-index: 10">
-           <div style="font-size:32px;text-align:center"> 📁 ：新业务模块文件夹 => contract ~ </div>
-        </div>
-        `
+    createNewContract: async (ctx) => {
+        let body = {...ctx.request.body}
+        let newContract = await Services.createContract(body)
+        console.log(newContract)
+        console.log(body.customer)
+        await Services.bindingCustomer(newContract._id, body.customer)
+        
+        ctx.status=201
+        ctx.body = {
+            code:0,
+            message:"created new contract successfully",
+            payload:newContract._id
+        }
+
+    },
+    getContractsList: async (ctx) => {
+        let pageSize = parseInt(ctx.query.pageSize)
+        let skipLength = (parseInt(ctx.query.page)-1)*pageSize
+        let payload = await Services.getPagedContractsList(skipLength,pageSize)
+        ctx.status = 200
+        ctx.body = {
+            code: 0,
+            message: 'get contracts paged list successfully',
+            payload
+        }
+    },
+    getAllStaff: async (ctx) => {
+        let payload = await Services.getAllStaff()
+        ctx.status = 200
+        ctx.body = {
+            code: 0,
+            message: 'get all staff successfully',
+            payload
+        }
+    },
+    searchContractsList: async(ctx) => {
+        let searchType = ctx.params.searchType
+        let keyword = ctx.query.keyword
+        let skipLength = (parseInt(ctx.query.page)-1)*parseInt(ctx.query.pageSize)
+        let pageSize = parseInt(ctx.query.pageSize)
+        console.log('-----------------')
+        console.log(typeof(keyword))
+        let payload = await Services.searchPagedContractsList(searchType,keyword,skipLength,pageSize)
+        ctx.status=200
+        ctx.body = {
+            code:0,
+            message:"search contracts paged list successfully",
+            payload
+        }
+    },
+    searchCustomers: async (ctx) => {
+        let keyword = ctx.query.keyword
+        let customers = await Services.searchCustomers(keyword)
+        ctx.status = 200
+        ctx.body = {
+            code: 0,
+            message: "Search Customers Successfully",
+            payload: customers
+        }
+    },
+    searchContacts: async (ctx) => {
+        let keyword = ctx.query.keyword
+        let contacts = await Services.searchContacts(keyword)
+        ctx.status = 200
+        ctx.body = {
+            code: 0,
+            message: "Search Contacts Successfully",
+            payload: contacts
+        }
+    },
+    updateContract: async (ctx) => {
+        let contractID = ctx.params._id
+
+    },
+    bindingCustomer: async (ctx) => {
+        let contract = await Services.updateContract(ctx.request.body.contractID, {customer: ctx.request.body.customer})
+        await Services.bindingCustomer(contract._id, ctx.request.body.customer)
+        ctx.status=201
+        ctx.body = {
+            code: 0,
+            message: "binding success"
+          }
     }
 }

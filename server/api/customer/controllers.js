@@ -37,6 +37,19 @@ module.exports = {
             message:"Updated customer successfully"
         }
     },
+    deleteCustomer:async(ctx)=>{
+        let customerID = ctx.params.id
+        let customer = await Services.findCustomer(customerID)
+        console.log("=======================")
+        console.log(customer)
+        // await Services.unBindingContact(customer._id,customer.contact)
+        await Services.deleteCustomer(customerID)
+        ctx.status=201
+        ctx.body = {
+            code:0,
+            message:"delete customer successfully"
+        }
+    },
     getCustomersList:async(ctx)=>{
         let skipLength = (parseInt(ctx.query.page)-1)*parseInt(ctx.query.pageSize)
         let pageSize = parseInt(ctx.query.pageSize)

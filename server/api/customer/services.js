@@ -13,6 +13,12 @@ module.exports = {
     updateCustomer: async (customerID, body) => {
         return await Customer.findByIdAndUpdate(customerID, body,{upsert:true})
     },
+    deleteCustomer: async (customerID) => {
+        return await Customer.findByIdAndRemove(customerID)
+    },
+    findCustomer: async (customerID) => {
+        return await Customer.findById(customerID)
+    },
     getPagedCustomerList: async (skipLength, pageSize) => {
         let count = await Customer.count()
         let customers = await Customer.find().skip(skipLength).limit(pageSize).populate({path:'contact',select:'name tel position'}).select('name contact staff status attribute level lastTimeVisit')
