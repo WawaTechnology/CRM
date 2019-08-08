@@ -1,4 +1,5 @@
 const User = require('./model')
+const moment = require('moment')
 
 module.exports = {
     createUser: async (body) => {
@@ -13,41 +14,36 @@ module.exports = {
         }
     },
     searchPagedUserList: async (searchType, keyword, skipLength, pageSize) => {
-        if (searchType == "customerName") {
-            let customers = await Customer.find({ name: { $regex: keyword, $options: "$i" } }).select('_id')
-            let count = await User.count({ customer: { $in: customers.map(customer => customer._id) } })
-            let users = await User.find({ customer: { $in: customers.map(customer => customer._id) } }).skip(skipLength).limit(pageSize).select('name position phone email status lastTime lastDevice')
-            return {
-                count,
-                users
-            }
-        }
         let query = {}
-        switch (searchType) {
-            
-            case "type":
-                query.type = keyword
+        switch (searchType) { 
+            case "name":
+                query.name = { $regex: keyword, $options: "$i" }
                 break
-            case "createDate":
+            case "position":
+                query.position = keyword
+                break
+            case "status":
+                query.status = keyword
+                break
+            case "lastTime":
                 let start = moment(keyword, "YYYY-MM-DD").add(8, 'h').toDate()
-                let end = moment(start).endOf('day').add(8, 'h').toDate()
+                let end = moment(start).endOf('day').add(8, 'h').toDate() 
                 console.log(start)
                 console.log(end)
-                query.createDate = { $gte: start, $lt: end }
+                query.lastTime = { $gte: start, $lt: end }
                 break
-            case "userDate":
-                let dateStart = moment(keyword, "YYYY-MM-DD").add(8, 'h').toDate()
-                let dateEnd = moment(start).endOf('day').add(8, 'h').toDate()
-                console.log(dateStart)
-                console.log(dateEnd)
-                query.userDate = { $gte: dateStart, $lt: dateEnd }
+            case "phone":
+                query.phone = { $regex: keyword, $options: "$i" }
                 break
         }
         let count = await User.count(query)
-        let users = await User.find().skip(skipLength).limit(pageSize).select('name position phone email status lastTime lastDevice')
+        let users = await User.find(query).skip(skipLength).limit(pageSize).select('name position phone email status lastTime lastDevice')
         return {
             count,
             users 
         }
+    },
+    updateUser: async (userID, body) => {
+        return await User.findByIdAndUpdate(userID, body)
     },
 }

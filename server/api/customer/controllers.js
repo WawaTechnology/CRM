@@ -6,8 +6,10 @@ module.exports = {
         if(ctx.query.bindingContact){
             body.contact = ctx.query.bindingContact
         }
+        console.log(ctx)
         let newCustomer = await Services.createCustomer(body)
         if(body.contact){
+            // 在contact表中加入customer
             await Services.bindingContact(newCustomer._id,body.contact)
         }
         ctx.status=201
@@ -37,13 +39,21 @@ module.exports = {
             message:"Updated customer successfully"
         }
     },
+    bindingContact:async(ctx)=>{
+        let customer = await Services.updateCustomer(ctx.request.body.customerID,{contact:ctx.request.body.contactID})
+        await Services.unBindingContact(customer._id,customer.contact)
+        await Services.bindingContact(customer._id,ctx.request.body.contactID)
+        ctx.status=201
+        ctx.body = {
+            code: 0,
+            message: "binding success"
+          }
+    },
     deleteCustomer:async(ctx)=>{
         let customerID = ctx.params.id
-        let customer = await Services.findCustomer(customerID)
-        console.log("=======================")
+        let customer = await Services.deleteCustomer(customerID)
         console.log(customer)
-        // await Services.unBindingContact(customer._id,customer.contact)
-        await Services.deleteCustomer(customerID)
+        await Services.unBindingContact(customerID,customer.contact)
         ctx.status=201
         ctx.body = {
             code:0,
@@ -74,14 +84,5 @@ module.exports = {
             payload
         }
     },
-    bindingContact:async(ctx)=>{
-        let customer = await Services.updateCustomer(ctx.request.body.customerID,{contact:ctx.request.body.contactID})
-        await Services.unBindingContact(customer._id,customer.contact)
-        await Services.bindingContact(customer._id,ctx.request.body.contactID)
-        ctx.status=201
-        ctx.body = {
-            code: 0,
-            message: "binding success"
-          }
-    }
+    
 }

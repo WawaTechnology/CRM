@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 
 const recordSchema = mongoose.Schema({
-    name: { type: String },
     remark: { type : String },
     createDate: { type: Date, default: Date.now },
     recordDate: { type : Date},

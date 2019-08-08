@@ -72,7 +72,15 @@ module.exports = {
         }
     },
     updateContract: async (ctx) => {
-        let contractID = ctx.params._id
+        let contractID = ctx.params.id
+        let body = ctx.request.body
+        
+        await Services.updateContract(contractID, body)
+        ctx.status = 201
+        ctx.body = {
+            code:0,
+            message:"Updated contract successfully"
+        }
 
     },
     bindingCustomer: async (ctx) => {

@@ -13,7 +13,7 @@ module.exports = {
         }
     },
     updateRecord:async(ctx)=>{
-        let RecordID = ctx.params.id
+        let recordID = ctx.params.id
         let body = ctx.request.body
         await Services.updateRecord(recordID,body)
         ctx.status=201

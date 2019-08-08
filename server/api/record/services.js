@@ -1,13 +1,14 @@
 const Record = require('./model')
 const Customer = require('../customer/model')
 const Contact = require('../contact/model')
+const moment = require('moment')
 
 module.exports = {
     createRecord: async (body) => {
         return await Record.create(body)
     },
     bindingCustomer: async (RecordID, customer) => {
-        return await Record.findByIdAndUpdate(RecordID, { $addToSet: { customer: customer } })
+        return await Record.findByIdAndUpdate(RecordID, { customer: customer }, { upsert: true} )
     },
     searchCustomers: async (keyword) => {
         let query = {
@@ -32,7 +33,7 @@ module.exports = {
     },
     getPagedRecordList: async (skipLength, pageSize) => {
         let count = await Record.count()
-        let records = await Record.find().skip(skipLength).limit(pageSize).populate({path:'customer',select:'name'}).select('name remark createDate recordDate feedback type staff workingStaff')
+        let records = await Record.find().skip(skipLength).limit(pageSize).populate({path:'customer',select:'name'}).select('contactName remark createDate recordDate feedback type staff workingStaff')
         return {
             count,
             records
@@ -42,7 +43,7 @@ module.exports = {
         if (searchType == "customerName") {
             let customers = await Customer.find({ name: { $regex: keyword, $options: "$i" } }).select('_id')
             let count = await Record.count({ customer: { $in: customers.map(customer => customer._id) } })
-            let records = await Record.find({ customer: { $in: customers.map(customer => customer._id) } }).skip(skipLength).limit(pageSize).populate({path: 'customer', select: 'name'}).select('name remark createDate recordDate feedback type staff workingStaff')
+            let records = await Record.find({ customer: { $in: customers.map(customer => customer._id) } }).skip(skipLength).limit(pageSize).populate({path: 'customer', select: 'name'}).select('contactName remark createDate recordDate feedback type staff workingStaff')
             return {
                 count,
                 records
@@ -70,7 +71,7 @@ module.exports = {
                 break
         }
         let count = await Record.count(query)
-        let records = await Record.find().skip(skipLength).limit(pageSize).populate({path:'customer',select:'name'}).select('name remark createDate recordDate feedback type staff workingStaff')
+        let records = await Record.find(query).skip(skipLength).limit(pageSize).populate({path:'customer',select:'name'}).select('contactName remark createDate recordDate feedback type staff workingStaff')
         return {
             count,
             records 

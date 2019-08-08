@@ -9,7 +9,7 @@ module.exports = {
     },
     getPagedContractsList: async (skipLength,pageSize) => {
         let count = await Contract.count()
-        let contracts = await Contract.find().skip(skipLength).limit(pageSize).populate({path: 'customer', select: 'name'}).select('customerName name startDate duration staff staffInCharge description createDate')
+        let contracts = await Contract.find().skip(skipLength).limit(pageSize).populate({path: 'customer signatory', select: 'name'}).select('name startDate endDate duration staff staffInCharge description createDate')
         return {
             count,
             contracts
@@ -25,7 +25,7 @@ module.exports = {
         if (searchType == "customerName") {
             let customers = await Customer.find({ name: { $regex: keyword, $options: "$i" } }).select('_id')
             let count = await Contract.count({ customer: { $in: customers.map(customer => customer._id) } })
-            let contracts = await Contract.find({ customer: { $in: customers.map(customer => customer._id) } }).skip(skipLength).limit(pageSize).populate({path: 'customer', select: 'name'}).select('customerName name createDate duration staff staffInCharge description')
+            let contracts = await Contract.find({ customer: { $in: customers.map(customer => customer._id) } }).skip(skipLength).limit(pageSize).populate({path: 'customer', select: 'name'}).select('name createDate endDate duration staff staffInCharge description')
             return {
                 count,
                 contracts
@@ -52,7 +52,7 @@ module.exports = {
            
         }
         let count = await Contract.count(query)
-        let contracts = await Contract.find(query).skip(skipLength).limit(pageSize).populate({path: 'customer', select: 'name'}).select('customerName name createDate duration staff staffInCharge description')
+        let contracts = await Contract.find(query).skip(skipLength).limit(pageSize).populate({path: 'customer', select: 'name'}).select('name createDate endDate duration staff staffInCharge description')
         return {
             count,
             contracts
@@ -62,7 +62,7 @@ module.exports = {
         let query = {
             name: { $regex: keyword, $options: "$i" }
         }
-        return await Customer.find(query).select('name')
+        return await Customer.find(query).populate({ path: "contact", select: 'name' }).select('name')
     },
     searchContacts: async (keyword) => {
         let query = {

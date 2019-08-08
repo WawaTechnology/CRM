@@ -1,5 +1,6 @@
 const Customer = require('./model')
 const Contact = require('../contact/model')
+const Contract = require('../contract/model')
 module.exports = {
     createCustomer: async (body) => {
         return await Customer.create(body)
@@ -21,7 +22,7 @@ module.exports = {
     },
     getPagedCustomerList: async (skipLength, pageSize) => {
         let count = await Customer.count()
-        let customers = await Customer.find().skip(skipLength).limit(pageSize).populate({path:'contact',select:'name tel position'}).select('name contact staff status attribute level lastTimeVisit')
+        let customers = await Customer.find().skip(skipLength).limit(pageSize).populate({path:'contact',select:'name tel position'}).select('name contact staff status attribute level lastTimeVisit email address department duration phone')
         return {
             count,
             customers
@@ -31,7 +32,7 @@ module.exports = {
         if (searchType == "contactName") {
             let contacts = await Contact.find({ name: { $regex: keyword, $options: "$i" } }).select('_id')
             let count = await Customer.count({ contact: { $in: contacts.map(contact => contact._id) } })
-            let customers = await Customer.find({ contact: { $in: contacts.map(contact => contact._id) } }).skip(skipLength).limit(pageSize)
+            let customers = await Customer.find({ contact: { $in: contacts.map(contact => contact._id) } }).skip(skipLength).limit(pageSize).populate({path:'contact',select:'name tel position'}).select('name contact staff status attribute level lastTimeVisit email address department duration phone')
             return {
                 count,
                 customers
@@ -58,12 +59,13 @@ module.exports = {
                 query.level = keyword
         }
         let count = await Customer.count(query)
-        let customers = await Customer.find(query).skip(skipLength).limit(pageSize).populate({path:'contact',select:'name tel position'}).select('name contact staff status attribute level lastTimeVisit')
+        let customers = await Customer.find(query).skip(skipLength).limit(pageSize).populate({path:'contact',select:'name tel position'}).select('name contact staff status attribute level lastTimeVisit email address department duration phone')
         return {
             count,
             customers
         }
     },
+    //跟进记录和合同都要更新
     unBindingContact:async(customerID,contactID)=>{
         await Contact.findByIdAndUpdate(contactID,{$pull:{serviceCustomers:customerID}})
     },

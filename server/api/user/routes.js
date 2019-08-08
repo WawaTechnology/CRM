@@ -4,7 +4,7 @@ const Controllers = require('./controllers')
 
 router.post('/new',Controllers.createNewUser)
 router.get('/',Controllers.getUsersList)
-
-
+router.get('/search/:searchType', Controllers.searchUsersList)
+router.patch('/update/:id', Controllers.updateUser)
 
 module.exports = router
