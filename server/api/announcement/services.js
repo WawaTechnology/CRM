@@ -27,7 +27,7 @@ module.exports = {
                 query.createTime = { $gte: start, $lt: end }
                 break
             case "visits":
-                query.visits = { $regex: keyword, $options: "$i" }
+                query.visits = keyword
                 break
         }
         let count = await Announcement.count(query)

@@ -27,7 +27,7 @@ module.exports = {
         let keyword = ctx.query.keyword
         let skipLength = (parseInt(ctx.query.page)-1)*parseInt(ctx.query.pageSize)
         let pageSize = parseInt(ctx.query.pageSize)
-        let payload = await Services.searchPagedAnnounList(searchType,keyword,skipLength,pageSize)
+        let payload = await Services.searchPagedAnnounsList(searchType,keyword,skipLength,pageSize)
         ctx.status=200
         ctx.body = {
             code:0,

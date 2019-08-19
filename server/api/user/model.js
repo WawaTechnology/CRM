@@ -7,7 +7,8 @@ const userSchema = mongoose.Schema({
     position: { type: String },
     status: { type: String, default: "在职" },
     lastTime: { type: Date, default: new Date(0)},
-    lastDevice: { type: String }
+    lastDevice: { type: String },
+    password: { type: String }
 })
 
 module.exports = mongoose.model('User', userSchema)
