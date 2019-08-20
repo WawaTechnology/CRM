@@ -3,6 +3,7 @@ const Services = require('./services')
 module.exports = {
     createNewUser: async (ctx) => {
         let body = {...ctx.request.body}
+        console.log(body)
         let newUser = await Services.createUser(body)
         ctx.status=201
         ctx.body = {

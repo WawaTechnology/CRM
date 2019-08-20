@@ -7,7 +7,7 @@ module.exports = {
     },
     getPagedUserList: async (skipLength, pageSize) => {
         let count = await User.count()
-        let users = await User.find().skip(skipLength).limit(pageSize).select('name position phone email status lastTime lastDevice')
+        let users = await User.find().skip(skipLength).limit(pageSize).select('name position department phone email status lastTime lastDevice')
         return {
             count,
             users
@@ -25,6 +25,9 @@ module.exports = {
             case "status":
                 query.status = keyword
                 break
+            case "department":
+                query.department = keyword
+                break
             case "lastTime":
                 let start = moment(keyword, "YYYY-MM-DD").add(8, 'h').toDate()
                 let end = moment(start).endOf('day').add(8, 'h').toDate() 
@@ -37,7 +40,7 @@ module.exports = {
                 break
         }
         let count = await User.count(query)
-        let users = await User.find(query).skip(skipLength).limit(pageSize).select('name position phone email status lastTime lastDevice')
+        let users = await User.find(query).skip(skipLength).limit(pageSize).select('name position department phone email status lastTime lastDevice')
         return {
             count,
             users 

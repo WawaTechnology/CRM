@@ -3,6 +3,7 @@ const Services = require('./services')
 module.exports = {
     createNewRecord: async (ctx) => {
         let body = {...ctx.request.body}
+        console.log(body)
         let newRecord = await Services.createRecord(body)
         await Services.bindingCustomer(newRecord._id, body.customer)
         ctx.status=201

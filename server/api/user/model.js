@@ -5,6 +5,7 @@ const userSchema = mongoose.Schema({
     email: { type: String },
     phone: { type: String },
     position: { type: String },
+    department: { type: String },
     status: { type: String, default: "在职" },
     lastTime: { type: Date, default: new Date(0)},
     lastDevice: { type: String },

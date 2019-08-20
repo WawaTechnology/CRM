@@ -7,7 +7,7 @@ const recordSchema = mongoose.Schema({
     feedback: { type: String },
     type: { type : String },
     staff: { type: String },
-    workingStaff: { type : String },
+    
     customer: { type: String, ref: 'Customer' },
     contactName: { type: String }
 })
