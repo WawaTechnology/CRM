@@ -1,6 +1,7 @@
 const Contract = require('./model')
 const Contact = require('../contact/model')
 const Customer = require('../customer/model')
+const User = require('../user/model')
 const moment = require('moment')
 
 module.exports = {
@@ -15,17 +16,31 @@ module.exports = {
             contracts
         }
     },
+    getPagedContractsListForDepartment: async (skipLength,pageSize,createDepartment) => {
+        let count = await Contract.find({ createDepartment: createDepartment }).count()
+        let contracts = await Contract.find({ createDepartment: createDepartment }).skip(skipLength).limit(pageSize).populate({path: 'customer signatory', select: 'name'}).select('name startDate endDate duration staff staffInCharge description createDate')
+        return {
+            count,
+            contracts
+        }
+    },
     getAllStaff: async () => {
         let allStaff = await Contact.find().select('name')
         return {
             allStaff
         }
     },
-    searchPagedContractsList: async (searchType, keyword, skipLength, pageSize) => {
+    getDepartmentUsers: async (department) => {
+        let users = await User.find({ department: department }).select('name')
+        return {
+            users
+        }
+    },
+    searchPagedContractsListForDepartment: async (searchType, keyword, skipLength, pageSize, createDepartment) => {
         if (searchType == "customerName") {
             let customers = await Customer.find({ name: { $regex: keyword, $options: "$i" } }).select('_id')
             let count = await Contract.count({ customer: { $in: customers.map(customer => customer._id) } })
-            let contracts = await Contract.find({ customer: { $in: customers.map(customer => customer._id) } }).skip(skipLength).limit(pageSize).populate({path: 'customer', select: 'name'}).select('name createDate endDate duration staff staffInCharge description')
+            let contracts = await Contract.find({ customer: { $in: customers.map(customer => customer._id) }, createDepartment: createDepartment}).skip(skipLength).limit(pageSize).populate({path: 'customer', select: 'name'}).select('name createDate endDate duration staff staffInCharge description')
             return {
                 count,
                 contracts
@@ -51,6 +66,7 @@ module.exports = {
                 break
            
         }
+        query.createDepartment = createDepartment
         let count = await Contract.count(query)
         let contracts = await Contract.find(query).skip(skipLength).limit(pageSize).populate({path: 'customer', select: 'name'}).select('name createDate endDate duration staff staffInCharge description')
         return {
@@ -58,9 +74,10 @@ module.exports = {
             contracts
         }
     },
-    searchCustomers: async (keyword) => {
+    searchCustomersForDepartment: async (keyword, createDepartment) => {
         let query = {
-            name: { $regex: keyword, $options: "$i" }
+            name: { $regex: keyword, $options: "$i" },
+            department: createDepartment
         }
         return await Customer.find(query).populate({ path: "contact", select: 'name' }).select('name')
     },

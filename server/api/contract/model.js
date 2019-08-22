@@ -10,6 +10,7 @@ const contractSchema = mongoose.Schema({
     staff: { type: String },
     staffInCharge: { type: String },
     createDate: { type: Date, default: Date.now },
+    createDepartment: { type: String },
     customer: { type: String, ref: 'Customer' }
 })
 

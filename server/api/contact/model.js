@@ -7,6 +7,7 @@ const contactSchema = mongoose.Schema({
     tel: { type: String },
     email: { type: String },
     wechat: { type: String },
+    createDepartment: { type: String },
     serviceCustomers: [{ type: String ,ref:'Customer'}]
 })
 

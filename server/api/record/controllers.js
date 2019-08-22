@@ -26,7 +26,8 @@ module.exports = {
     getRecordsList:async(ctx)=>{
         let skipLength = (parseInt(ctx.query.page)-1)*parseInt(ctx.query.pageSize)
         let pageSize = parseInt(ctx.query.pageSize)
-        let payload = await Services.getPagedRecordList(skipLength,pageSize)
+        let createDepartment = ctx.query.createDepartment
+        let payload = await Services.getPagedRecordListForDepartment(skipLength,pageSize,createDepartment)
         ctx.status=200
         ctx.body = {
             code:0,
@@ -39,7 +40,8 @@ module.exports = {
         let keyword = ctx.query.keyword
         let skipLength = (parseInt(ctx.query.page)-1)*parseInt(ctx.query.pageSize)
         let pageSize = parseInt(ctx.query.pageSize)
-        let payload = await Services.searchPagedRecordList(searchType,keyword,skipLength,pageSize)
+        let createDepartment = ctx.query.createDepartment
+        let payload = await Services.searchPagedRecordListForDepartment(searchType,keyword,skipLength,pageSize,createDepartment)
         ctx.status=200
         ctx.body = {
             code:0,
@@ -49,7 +51,8 @@ module.exports = {
     },
     searchCustomers: async (ctx) => {
         let keyword = ctx.query.keyword
-        let customers = await Services.searchCustomers(keyword)
+        let createDepartment = ctx.query.createDepartment
+        let customers = await Services.searchCustomersForDepartment(keyword, createDepartment)
         
         ctx.status=200
         ctx.body = {
@@ -58,6 +61,7 @@ module.exports = {
             payload: customers
         }
     },
+    //deprecated
     searchContactByID:async(ctx)=>{
         let keyword = ctx.query.keyword
         let contacts = await Services.searchContactByID(keyword)

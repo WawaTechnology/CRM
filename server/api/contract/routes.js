@@ -8,5 +8,6 @@ router.get('/search/:searchType',Controllers.searchContractsList)
 router.get('/searchContacts',Controllers.searchContacts)
 router.get('/searchCustomers',Controllers.searchCustomers)
 router.get('/allStaff', Controllers.getAllStaff)
+router.get('/users', Controllers.getDepartmentUsers)
 router.patch('/update/:id', Controllers.updateContract)
 module.exports = router

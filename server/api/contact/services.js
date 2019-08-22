@@ -5,9 +5,10 @@ module.exports = {
         console.log("i am create")
         return await Contact.create(body)
     },
-    searchCustomers: async (keyword) => {
+    searchCustomersForDepartment: async (keyword, createDepartment) => {
         let query = {
-            name: { $regex: keyword, $options: "$i" }
+            name: { $regex: keyword, $options: "$i" },
+            department: createDepartment
         }
         return await Customer.find(query).select('name')
     },
@@ -28,7 +29,15 @@ module.exports = {
             contacts
         }
     },
-    searchPagedContactList: async (searchType, keyword, skipLength, pageSize) => {  
+    getPagedContactListForDepartment: async (skipLength, pageSize, createDepartment) => {
+        let count = await Contact.find({ createDepartment: createDepartment }).count()
+        let contacts = await Contact.find({ createDepartment: createDepartment }).skip(skipLength).limit(pageSize).populate({path:'serviceCustomers',select:'name'}).select('name tel position nationality wechat email')
+        return {
+            count,
+            contacts
+        }
+    },
+    searchPagedContactListForDepartment: async (searchType, keyword, skipLength, pageSize, createDepartment) => {  
         let query = {}
         switch (searchType) {
             case "name":
@@ -37,6 +46,7 @@ module.exports = {
             case "tel":
                 query.tel = { $regex: keyword, $options: "$i" }
         }
+        query.createDepartment = createDepartment
         let count = await Contact.count(query)
         let contacts = await Contact.find(query).skip(skipLength).limit(pageSize).populate({path:'serviceCustomers',select:'name'}).select('name tel position nationality wechat email')
         return {

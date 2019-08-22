@@ -19,7 +19,8 @@ module.exports = {
     getContractsList: async (ctx) => {
         let pageSize = parseInt(ctx.query.pageSize)
         let skipLength = (parseInt(ctx.query.page)-1)*pageSize
-        let payload = await Services.getPagedContractsList(skipLength,pageSize)
+        let createDepartment = ctx.query.createDepartment
+        let payload = await Services.getPagedContractsListForDepartment(skipLength,pageSize,createDepartment)
         ctx.status = 200
         ctx.body = {
             code: 0,
@@ -36,14 +37,25 @@ module.exports = {
             payload
         }
     },
+    getDepartmentUsers: async (ctx) => {
+        let department = ctx.query.department
+        let payload = await Services.getDepartmentUsers(department)
+        ctx.status = 200
+        ctx.body = {
+            code: 0,
+            message: 'get department users successfully',
+            payload
+        }
+    },
     searchContractsList: async(ctx) => {
         let searchType = ctx.params.searchType
         let keyword = ctx.query.keyword
+        let createDepartment = ctx.query.createDepartment
         let skipLength = (parseInt(ctx.query.page)-1)*parseInt(ctx.query.pageSize)
         let pageSize = parseInt(ctx.query.pageSize)
         console.log('-----------------')
         console.log(typeof(keyword))
-        let payload = await Services.searchPagedContractsList(searchType,keyword,skipLength,pageSize)
+        let payload = await Services.searchPagedContractsListForDepartment(searchType,keyword,skipLength,pageSize,createDepartment)
         ctx.status=200
         ctx.body = {
             code:0,
@@ -53,7 +65,8 @@ module.exports = {
     },
     searchCustomers: async (ctx) => {
         let keyword = ctx.query.keyword
-        let customers = await Services.searchCustomers(keyword)
+        let createDepartment = ctx.query.createDepartment
+        let customers = await Services.searchCustomersForDepartment(keyword, createDepartment)
         ctx.status = 200
         ctx.body = {
             code: 0,

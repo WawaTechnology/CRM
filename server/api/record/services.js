@@ -10,9 +10,10 @@ module.exports = {
     bindingCustomer: async (RecordID, customer) => {
         return await Record.findByIdAndUpdate(RecordID, { customer: customer }, { upsert: true} )
     },
-    searchCustomers: async (keyword) => {
+    searchCustomersForDepartment: async (keyword, createDepartment) => {
         let query = {
-            name: { $regex: keyword, $options: "$i" }
+            name: { $regex: keyword, $options: "$i" },
+            department: createDepartment
         }
         return await Customer.find(query).populate({ path: 'contact', select: 'name'}).select('name')
     },
@@ -39,11 +40,19 @@ module.exports = {
             records
         }
     },
-    searchPagedRecordList: async (searchType, keyword, skipLength, pageSize) => {
+    getPagedRecordListForDepartment: async (skipLength, pageSize, createDepartment) => {
+        let count = await Record.find({ createDepartment: createDepartment }).count()
+        let records = await Record.find({ createDepartment: createDepartment }).skip(skipLength).limit(pageSize).populate({path:'customer',select:'name'}).select('contactName remark createDate recordDate feedback type staff workingStaff')
+        return {
+            count,
+            records
+        }
+    },
+    searchPagedRecordListForDepartment: async (searchType, keyword, skipLength, pageSize, createDepartment) => {
         if (searchType == "customerName") {
             let customers = await Customer.find({ name: { $regex: keyword, $options: "$i" } }).select('_id')
             let count = await Record.count({ customer: { $in: customers.map(customer => customer._id) } })
-            let records = await Record.find({ customer: { $in: customers.map(customer => customer._id) } }).skip(skipLength).limit(pageSize).populate({path: 'customer', select: 'name'}).select('contactName remark createDate recordDate feedback type staff workingStaff')
+            let records = await Record.find({ customer: { $in: customers.map(customer => customer._id) }, createDepartment: createDepartment }).skip(skipLength).limit(pageSize).populate({path: 'customer', select: 'name'}).select('contactName remark createDate recordDate feedback type staff workingStaff')
             return {
                 count,
                 records
@@ -54,6 +63,9 @@ module.exports = {
             
             case "type":
                 query.type = keyword
+                break
+            case "staff":
+                query.staff = { $regex: keyword, $options: "$i" }
                 break
             case "createDate":
                 let start = moment(keyword, "YYYY-MM-DD").add(8, 'h').toDate()
@@ -70,6 +82,7 @@ module.exports = {
                 query.recordDate = { $gte: dateStart, $lt: dateEnd }
                 break
         }
+        query.createDepartment = createDepartment
         let count = await Record.count(query)
         let records = await Record.find(query).skip(skipLength).limit(pageSize).populate({path:'customer',select:'name'}).select('contactName remark createDate recordDate feedback type staff workingStaff')
         return {

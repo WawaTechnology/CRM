@@ -12,7 +12,7 @@ const customerSchema = mongoose.Schema({
     department: { type: String },
     duration: { type: String },
     lastTimeVisit: { type: Date,default:new Date(0)},
-    nextTimeVisit: { type: Date,default:new Date(0)},
+    nextTimeVisit: { type: Date },
     staff: { type: String },
     attribute: { type: String },
     coStaff: [{ type: String }],

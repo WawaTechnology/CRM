@@ -5,9 +5,10 @@ module.exports = {
     createCustomer: async (body) => {
         return await Customer.create(body)
     },
-    searchContacts: async (keyword) => {
+    searchContactsForDepartment: async (keyword, createDepartment) => {
         let query = {
-            name: { $regex: keyword, $options: "$i" }
+            name: { $regex: keyword, $options: "$i" },
+            createDepartment: createDepartment
         }
         return await Contact.find(query).select('name')
     },
@@ -28,11 +29,19 @@ module.exports = {
             customers
         }
     },
-    searchPagedCustomerList: async (searchType, keyword, skipLength, pageSize) => {
+    getPagedCustomerListForDepartment: async (skipLength, pageSize, department) => {
+        let count = await Customer.find({ department: department }).count()
+        let customers = await Customer.find({ department: department }).skip(skipLength).limit(pageSize).populate({path:'contact',select:'name tel position'}).select('name contact staff status attribute level lastTimeVisit email address department duration phone')
+        return {
+            count,
+            customers
+        }
+    },
+    searchPagedCustomerListForDepartment: async (searchType, keyword, skipLength, pageSize, department) => {
         if (searchType == "contactName") {
             let contacts = await Contact.find({ name: { $regex: keyword, $options: "$i" } }).select('_id')
             let count = await Customer.count({ contact: { $in: contacts.map(contact => contact._id) } })
-            let customers = await Customer.find({ contact: { $in: contacts.map(contact => contact._id) } }).skip(skipLength).limit(pageSize).populate({path:'contact',select:'name tel position'}).select('name contact staff status attribute level lastTimeVisit email address department duration phone')
+            let customers = await Customer.find({ contact: { $in: contacts.map(contact => contact._id) }, department: department }).skip(skipLength).limit(pageSize).populate({path:'contact',select:'name tel position'}).select('name contact staff status attribute level lastTimeVisit email address department duration phone')
             return {
                 count,
                 customers
@@ -58,6 +67,7 @@ module.exports = {
             case "level":
                 query.level = keyword
         }
+        query.department = department
         let count = await Customer.count(query)
         let customers = await Customer.find(query).skip(skipLength).limit(pageSize).populate({path:'contact',select:'name tel position'}).select('name contact staff status attribute level lastTimeVisit email address department duration phone')
         return {

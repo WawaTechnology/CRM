@@ -21,7 +21,8 @@ module.exports = {
     },
     searchContacts:async(ctx)=>{
         let keyword = ctx.query.keyword
-        let contacts = await Services.searchContacts(keyword)
+        let department = ctx.query.department
+        let contacts = await Services.searchContactsForDepartment(keyword, department)
         ctx.status=200
         ctx.body = {
             code:0,
@@ -63,7 +64,8 @@ module.exports = {
     getCustomersList:async(ctx)=>{
         let skipLength = (parseInt(ctx.query.page)-1)*parseInt(ctx.query.pageSize)
         let pageSize = parseInt(ctx.query.pageSize)
-        let payload = await Services.getPagedCustomerList(skipLength,pageSize)
+        let department = ctx.query.department
+        let payload = await Services.getPagedCustomerListForDepartment(skipLength,pageSize,department)
         ctx.status=200
         ctx.body = {
             code:0,
@@ -76,7 +78,8 @@ module.exports = {
         let keyword = ctx.query.keyword
         let skipLength = (parseInt(ctx.query.page)-1)*parseInt(ctx.query.pageSize)
         let pageSize = parseInt(ctx.query.pageSize)
-        let payload = await Services.searchPagedCustomerList(searchType,keyword,skipLength,pageSize)
+        let department = ctx.query.department
+        let payload = await Services.searchPagedCustomerListForDepartment(searchType,keyword,skipLength,pageSize,department)
         ctx.status=200
         ctx.body = {
             code:0,
